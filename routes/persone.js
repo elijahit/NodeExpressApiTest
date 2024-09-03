@@ -10,6 +10,8 @@
 
   {baseUri}/api/persone/search?name=name&surname=surname (GET, ALL DATA BY NAME & SURNAME, "CASE_INSENSITIVE)
 
+  {baseUri}/api/persone (POST, ADD DATA, BODY: {nome, cognome, eta, genere, email, telefono, citta, professione})
+
 */
 
 const express = require('express');
@@ -20,6 +22,7 @@ const router = express.Router();
 
 
 router.use(logsMiddleware);
+router.use(express.json());
 
 // FUNCTIONS
 
@@ -40,15 +43,16 @@ function searchWithSurname(array, surname) {
 
 // ROUTES
 
+/* GET ROUTES */
 router.get("/", (req, res) => {
-  res.json({ success: true, data: persone });
+  res.status(200).json({ success: true, data: persone });
 });
 
 router.get("/:id", (req, res) => {
   const {id} = req.params;
 
   let personeFiltered = [...persone];
-  return res.json({ success: true, data: searchWithId(personeFiltered, id) });
+  return res.status(200).json({ success: true, data: searchWithId(personeFiltered, id) });
 }) 
 
 router.get("/search", (req, res) => {
@@ -56,23 +60,45 @@ router.get("/search", (req, res) => {
 
   if (name && surname) {
     let personeFiltered = [...persone];
-    return res.json({ success: true, data: searchWithName(searchWithSurname(personeFiltered, surname), name) });
+    return res.status(200).json({ success: true, data: searchWithName(searchWithSurname(personeFiltered, surname), name) });
   }
 
   if (name) {
     let personeFiltered = [...persone];
-    return res.json({ success: true, data: searchWithName(personeFiltered, name) });
+    return res.status(200).json({ success: true, data: searchWithName(personeFiltered, name) });
   }
 
   if (surname) {
     let personeFiltered = [...persone];
-    return res.json({ success: true, data: searchWithSurname(personeFiltered, surname) });
+    return res.status(200).json({ success: true, data: searchWithSurname(personeFiltered, surname) });
   }
 
   res.status(404).json({ success: false, error: "404 Not found" })
 })
 
+/* POST ROUTES */
+router.post('/', (req, res) => {
+  const {nome, cognome, eta, genere, email, telefono, citta, professione} = req.body;
 
+  const isValidData = nome && cognome && eta && genere && email && telefono && citta && professione ? true : false;
+
+  if(isValidData) {
+    persone.push({
+      id: `${persone.length+1}`,
+      nome: nome,
+      cognome: cognome,
+      eta: eta,
+      genere: genere,
+      email: email,
+      telefono: telefono,
+      citta: citta,
+      professione: professione
+    });
+    res.status(200).json({ success: true, data: persone })
+  }
+})
+
+/* ERROR ROUTES */
 router.all("*", (req, res)=> {
   res.json({success: false, error: "404 Not found"});
 })
