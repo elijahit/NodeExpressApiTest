@@ -94,8 +94,48 @@ router.post('/', (req, res) => {
       citta: citta,
       professione: professione
     });
-    res.status(200).json({ success: true, data: persone })
+    return res.status(200).json({ success: true, data: persone })
   }
+
+  res.status(400).json({ success: false, data: {success: false, error: "Body not valid"} });
+})
+
+/* PUT ROUTES */
+router.put('/:id', (req, res) => {
+  const {nome, cognome, eta, genere, email, telefono, citta, professione} = req.body;
+  const {id} = req.params;
+
+  const isValidData = nome && cognome && eta && genere && email && telefono && citta && professione ? true : false;
+
+  if(isValidData) {
+    const arrayIndex = persone.map(persone => persone.id).indexOf(id);
+
+    persone[arrayIndex].nome = nome;
+    persone[arrayIndex].cognome = cognome;
+    persone[arrayIndex].eta = eta;
+    persone[arrayIndex].genere = genere;
+    persone[arrayIndex].email = email;
+    persone[arrayIndex].telefono = telefono;
+    persone[arrayIndex].citta = citta;
+    persone[arrayIndex].professione = professione;
+
+    return res.status(200).json({ success: true, data: persone })
+  }
+
+  res.status(400).json({ success: false, data: {success: false, error: "Body not valid"} });
+})
+/* PUT ROUTES */
+router.delete("/:id", (req, res) => {
+  const {id} = req.params;
+  if(id) {
+    let personeFiltered = [...persone];
+    const arrayIndex = personeFiltered.map(persona => persona.id).indexOf(id);
+    if(arrayIndex >= 0) {
+      personeFiltered.splice(arrayIndex, 1);
+      return res.status(200).json({ success: true, data: personeFiltered })
+    }
+  }
+  res.json({success: false, error: "404 Not found"});
 })
 
 /* ERROR ROUTES */
