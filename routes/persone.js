@@ -48,7 +48,7 @@ router.get("/", (req, res) => {
   res.status(200).json({ success: true, data: persone });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/id/:id", (req, res) => {
   const {id} = req.params;
 
   let personeFiltered = [...persone];
